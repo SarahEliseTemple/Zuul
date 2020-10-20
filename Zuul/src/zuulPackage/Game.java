@@ -48,7 +48,7 @@ class Game
         pub = new Room("in the campus pub");
         lab = new Room("in a computing lab");
         office = new Room("in the computing admin office");
-        onetwenty = new Room("in the coolest place in the world")
+        onetwenty = new Room("in the coolest place in the world");
         
         // initialise room exits
         outside.setExit("east", theatre);
