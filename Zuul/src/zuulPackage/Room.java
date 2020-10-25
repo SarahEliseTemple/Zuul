@@ -1,6 +1,7 @@
 package zuulPackage;
 
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -22,7 +23,7 @@ class Room
 {
     private String description;
     private HashMap exits;        // stores exits of this room.
-
+    ArrayList<Item> items = new ArrayList<Item>();
     /**
      * Create a room described "description". Initially, it has no exits.
      * "description" is something like "in a kitchen" or "in an open court 
@@ -81,6 +82,30 @@ class Room
     public Room getExit(String direction) 
     {
         return (Room)exits.get(direction);
+    }
+    /*Get items from the room
+     * 
+     */
+    public Item getItem(int index) {
+		return items.get(index);
+    }
+    /*
+     * set a particular item in the room
+     */
+    public void setItem(Item newItem) {
+    	items.add(newItem);
+    }
+    /*
+     * Get a discription of the items in a room.
+     * */
+    
+    public String getRoomItems() {
+    	String output = "";
+    	for (int i=0; i<items.size();i++) {
+    		output += items.get(i).getDescription() + " ";
+    	}
+    	return output;
+    		
     }
 }
 
