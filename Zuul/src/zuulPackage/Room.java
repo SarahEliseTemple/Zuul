@@ -72,6 +72,9 @@ class Room
         Set keys = exits.keySet();
         for(Iterator iter = keys.iterator(); iter.hasNext(); )
             returnString += " " + iter.next();
+        returnString += "\nItems in the room:\n";
+        returnString += getRoomItems();
+        
         return returnString;
     }
 
@@ -88,6 +91,27 @@ class Room
      */
     public Item getItem(int index) {
 		return items.get(index);
+    }
+    public Item getItem(String itemName) {
+    	
+		for (int i=0; i< items.size(); i++) {
+			if (items.get(i).getDescription().equals(itemName)) {
+				return items.get(i);
+			}
+		}
+		return null;
+    }
+    /*
+     * remove items from the room
+     */
+    public Item removeItem(String itemName) {
+    	
+		for (int i=0; i< items.size(); i++) {
+			if (items.get(i).getDescription().equals(itemName)) {
+				items.remove(i);
+			}
+		}
+		return null;
     }
     /*
      * set a particular item in the room

@@ -72,6 +72,7 @@ class Game
         
         //adding items 
         inventory.add(new Item("Computer"));
+        onetwenty.setItem(new Item("Robot"));
     }
 
     /**
@@ -131,10 +132,33 @@ class Game
         else if (commandWord.equals("inventory")) {
         	printInventory();
         }
+        else if (commandWord.equals("get")) {
+        	getItem(command);
+        }
         return wantToQuit;
     }
 
-    private void printInventory() {
+    private void getItem(Command command) {
+    	if(!command.hasSecondWord()) {
+            // if there is no second word, we don't know what they want to pick up...
+            System.out.println("Get what????");
+            return;
+        }
+
+        String item = command.getSecondWord();
+
+        // Try to leave current room.
+        Item newItem = currentRoom.getItem(item);
+
+        if (newItem == null)
+            System.out.println("The item isn't here!");
+        else {
+            inventory.add(newItem);
+            System.out.println(currentRoom.getLongDescription());
+        }
+	}
+
+	private void printInventory() {
 		String output = "";
 		for (int i=0; i<inventory.size();i++) {
 			output += inventory.get(i).getDescription() + " ";
@@ -164,8 +188,7 @@ class Game
      * Try to go to one direction. If there is an exit, enter the new
      * room, otherwise print an error message.
      */
-    private void goRoom(Command command) 
-    {
+    private void goRoom(Command command) {
         if(!command.hasSecondWord()) {
             // if there is no second word, we don't know where to go...
             System.out.println("Go where?");
