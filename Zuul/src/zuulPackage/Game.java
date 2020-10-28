@@ -23,7 +23,8 @@ class Game
 {
     private Parser parser;
     private Room currentRoom;
-    Room outside, theatre, pub, lab, office, onetwenty;
+    Room outside, theatre, pub, lab, office, onetwenty, roomFifteen, roomSixteen, roomSeventeen,
+    coolKidCorner, roomEighteen,  roomNinteen,  roomTwenty, secretRoom, dramaClub, hallway, library, juiceBoxRoom, oneTwentyTwo, janitorCloset;
     ArrayList<Item> inventory = new ArrayList<Item>();
     /**
      * Create the game and initialise its internal map.
@@ -51,6 +52,20 @@ class Game
         lab = new Room("in a computing lab");
         office = new Room("in the computing admin office");
         onetwenty = new Room("in the coolest place in the world(room one-twenty)");
+        roomFifteen = new Room("in the fifteenth room");
+        roomSixteen = new Room("in the next room");
+        roomSeventeen = new Room("in the 17th room");
+        roomEighteen = new Room("in the 18th room");
+        roomNinteen = new Room("in the 19th room");
+        roomTwenty = new Room("in the 20th room");
+        coolKidCorner = new Room ("at the place where all the cool kids hang out after programming.");
+        dramaClub = new Room ("in the room where a lot of kids just play D&D all day otherwise known as the Drama Club.");
+        hallway= new Room("in the hallway");
+        library = new Room("In the library. Books tower around you.");
+        juiceBoxRoom = new Room ("in the room built for juice boxes");
+        oneTwentyTwo = new Room ("in 122.");
+        janitorCloset= new Room ("in the office of one of the more high risk jobs in this instetution. The Janitors Closet.");
+        secretRoom = new Room ("in the secret room!");
         
         // initialise room exits
         outside.setExit("east", theatre);
@@ -59,20 +74,61 @@ class Game
         outside.setExit("north", onetwenty);
 
         theatre.setExit("west", outside);
+        theatre.setExit("north", dramaClub);
+        
+        dramaClub.setExit("south", theatre);
+        
 
         pub.setExit("east", outside);
+        pub.setExit("west", coolKidCorner);
 
+        coolKidCorner.setExit("east", pub);
+        
         lab.setExit("north", outside);
         lab.setExit("east", office);
-
+        lab.setExit("south", roomFifteen);
+        
         office.setExit("west", lab);
 
         onetwenty.setExit("south", outside);
+        onetwenty.setExit("north", hallway);
+        
+        hallway.setExit("south", onetwenty);
+        hallway.setExit("north", oneTwentyTwo);
+        hallway.setExit("east", janitorCloset);
+        hallway.setExit("west", library);
+        
+        oneTwentyTwo.setExit("south", hallway);
+        oneTwentyTwo.setExit("east", juiceBoxRoom);
+        
+        library.setExit("east", hallway);
+        library.setExit("west", secretRoom);
+        
+        roomFifteen.setExit("south", roomSixteen);
+        roomFifteen.setExit("north", lab);
+        
+        roomSixteen.setExit("south", roomSeventeen);
+        roomSixteen.setExit("north", roomFifteen);
+        
+        roomSeventeen.setExit("south", roomEighteen);
+        roomSeventeen.setExit("north", roomSixteen);
+        
+        roomEighteen.setExit("south", roomNinteen);
+        roomEighteen.setExit("north", roomSeventeen);
+        
+        roomNinteen.setExit("south", roomTwenty);
+        roomNinteen.setExit("north", roomEighteen);
+        
+        roomTwenty.setExit("north", roomNinteen);
+        
         currentRoom = outside;  // start game outside
         
         //adding items 
         inventory.add(new Item("Computer"));
         onetwenty.setItem(new Item("Robot"));
+        roomTwenty.setItem(new Item("Juice Box"));
+        secretRoom.setItem(new Item("Juice Box"));
+        dramaClub.setItem(new Item("Juice Box"));
     }
 
     /**
@@ -124,10 +180,12 @@ class Game
         if (commandWord.equals("help"))
             printHelp();
         else if (commandWord.equals("go")) {
-            goRoom(command);
+            wantToQuit= goRoom(command);//the want to quit part lets this one get the winning condition
         }
-        else if (commandWord.equals("quit")) {
-            wantToQuit = quit(command);
+        
+        else if (commandWord.equals("quit")){
+            
+        	wantToQuit = quit(command);
         }
         else if (commandWord.equals("inventory")) {
         	printInventory();
@@ -135,10 +193,39 @@ class Game
         else if (commandWord.equals("get")) {
         	getItem(command);
         }
+        else if (commandWord.equals("drop")) {
+        	dropItem(command);
+        }
         return wantToQuit;
     }
 
-    private void getItem(Command command) {
+    private void dropItem(Command command) {
+    	if(!command.hasSecondWord()) {
+            // if there is no second word, we don't know what they want to drop...
+            System.out.println("Drop what????");
+            return;
+        }
+
+        String item = command.getSecondWord();
+
+        // Try to leave current room.
+        Item newItem = null;
+        int index = 0;
+        for (int i= 0; i<inventory.size(); i++) {
+        	newItem = inventory.get(i);
+
+        }
+        
+        if (newItem == null)
+            System.out.println("The item isn't in your inventory! :( ");
+        else {
+            inventory.remove(index);
+            currentRoom.setItem(new Item(item));
+            System.out.println("Dropped: " + item);
+        }
+	}
+
+	private void getItem(Command command) {
     	if(!command.hasSecondWord()) {
             // if there is no second word, we don't know what they want to pick up...
             System.out.println("Get what????");
@@ -154,7 +241,8 @@ class Game
             System.out.println("The item isn't here!");
         else {
             inventory.add(newItem);
-            System.out.println(currentRoom.getLongDescription());
+            currentRoom.removeItem(item);
+            System.out.println("Picked up: " + item);
         }
 	}
 
@@ -188,11 +276,11 @@ class Game
      * Try to go to one direction. If there is an exit, enter the new
      * room, otherwise print an error message.
      */
-    private void goRoom(Command command) {
+    private boolean goRoom(Command command) {//this is a boolean because if you go to room 20 then you win. 
         if(!command.hasSecondWord()) {
             // if there is no second word, we don't know where to go...
             System.out.println("Go where?");
-            return;
+            
         }
 
         String direction = command.getSecondWord();
@@ -205,7 +293,12 @@ class Game
         else {
             currentRoom = nextRoom;
             System.out.println(currentRoom.getLongDescription());
+            if (currentRoom == roomTwenty) {
+            	System.out.println("You win!!! :)");
+            	return true;
+            }
         }
+        return false;
     }
 
     /** 
